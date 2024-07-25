@@ -1,41 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- 配置文件版本声明和编码设置 -->
 <config>
+    <!-- 指定Lucene的版本匹配 -->
     <luceneMatchVersion>5.3.1</luceneMatchVersion>
+    <!-- 设置Solr的数据目录，支持使用系统属性或默认值 -->
     <dataDir>${solr.data.dir:}</dataDir>
+    <!-- 定义库目录，使用正则表达式筛选jar文件 -->
     <lib dir="./lib" regex=".*\.jar"/>
+    <!-- 配置目录工厂，用于创建和管理索引的物理存储 -->
     <directoryFactory name="DirectoryFactory"
-                    class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}"/> 
+                      class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}"/>
+    <!-- 配置编解码器工厂，用于索引的压缩和解压缩 -->
     <codecFactory class="solr.SchemaCodecFactory"/>
+    <!-- 配置模式工厂，用于创建和管理索引的模式 -->
     <schemaFactory class="ClassicIndexSchemaFactory"/>
+    <!-- 配置更新处理器，包括事务日志和自动提交设置 -->
     <updateHandler class="solr.DirectUpdateHandler2">
-      <updateLog>
-        <str name="dir">${solr.ulog.dir:}</str>
-      </updateLog>
-     <autoCommit>
-       <maxTime>15000</maxTime> 
-       <openSearcher>false</openSearcher> 
-     </autoCommit>
+        <!-- 配置事务日志的存储目录 -->
+        <updateLog>
+            <str name="dir">${solr.ulog.dir:}</str>
+        </updateLog>
+        <!-- 配置自动提交的条件，包括最大时间和是否打开搜索器 -->
+        <autoCommit>
+            <maxTime>15000</maxTime>
+            <openSearcher>false</openSearcher>
+        </autoCommit>
     </updateHandler>
+    <!-- 配置查询处理器，包括最大布尔表达式数量和预热搜索器设置 -->
     <query>
         <maxBooleanClauses>1024</maxBooleanClauses>
         <useColdSearcher>false</useColdSearcher>
         <maxWarmingSearchers>1</maxWarmingSearchers>
     </query>
-    <requestDispatcher handleSelect="false" >
-        <httpCaching never304="true" />
+    <!-- 配置请求分发器，处理HTTP缓存和选择 -->
+    <requestDispatcher handleSelect="false">
+        <httpCaching never304="true"/>
     </requestDispatcher>
-    <requestHandler name="/update" class="solr.UpdateRequestHandler" />
+    <!-- 配置更新请求处理器 -->
+    <requestHandler name="/update" class="solr.UpdateRequestHandler"/>
+    <!-- 配置选择请求处理器，包括默认参数设置 -->
     <requestHandler name="/select" class="solr.SearchHandler">
         <lst name="defaults">
+            <!-- 设置默认的参数值，如查询字段、结果格式和缩进 -->
             <str name="echoParams">none</str>
             <str name="df">text</str>
             <str name="wt">json</str>
             <str name="indent">true</str>
         </lst>
     </requestHandler>
+    <!-- 配置查询响应写手，用于生成JSON格式的响应 -->
     <queryResponseWriter name="json" class="solr.JSONResponseWriter">
+        <!-- 设置响应的内容类型 -->
         <str name="content-type">text/plain; charset=UTF-8</str>
     </queryResponseWriter>
+    <!-- 配置管理员设置，包括默认查询 -->
     <admin>
         <defaultQuery>*:*</defaultQuery>
     </admin>

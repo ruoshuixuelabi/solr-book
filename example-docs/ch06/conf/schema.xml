@@ -1,26 +1,65 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Solr schema定义，用于描述索引结构 -->
 <schema name="example" version="1.5">
- <fields>
-    <field name="id" type="string" indexed="true" stored="true" />
+  <!-- 定义所有可用的字段 -->
+  <fields>
+    <!-- id字段，作为文档的唯一标识符 -->
+    <field name="id" type="string" indexed="true" stored="true">
+      <!-- indexed="true" 表示该字段将被索引，可用于搜索和排序 -->
+      <!-- stored="true" 表示该字段的值将被存储，可以在查询结果中返回 -->
+    </field>
+
+    <!-- _version_ 字段，由Solr自动生成，用于版本控制 -->
     <field name="_version_" type="long" indexed="true" stored="true"/>
-    <field name="text" type="string" indexed="true" stored="false" multiValued="true"/>
+
+    <!-- text 字段，用于全文检索 -->
+    <field name="text" type="string" indexed="true" stored="false" multiValued="true">
+      <!-- multiValued="true" 表示一个文档可以有多个值 -->
+    </field>
+
+    <!-- name 字段，用于存储文档的名称 -->
     <field name="name" type="string" indexed="true" stored="true" />
-    <field name="city" type="string" indexed="true" stored="true" /> 
+
+    <!-- city 字段，用于存储文档所属的城市 -->
+    <field name="city" type="string" indexed="true" stored="true" />
+
+    <!-- type 字段，用于存储文档的类型 -->
     <field name="type" type="string" indexed="true" stored="true" />
+
+    <!-- state 字段，用于存储文档所属的州 -->
     <field name="state" type="string" indexed="true" stored="true"/>
+
+    <!-- tags 字段，用于存储文档的标签，可以有多个值 -->
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true" />
+
+    <!-- price 字段，用于存储文档的价格 -->
     <field name="price" type="double" indexed="true" stored="true" />
- </fields>
- <uniqueKey>id</uniqueKey>
+  </fields>
+
+  <!-- 定义唯一键字段，用于标识每个文档 -->
+  <uniqueKey>id</uniqueKey>
+
+  <!-- 定义字段类型 -->
   <types>
-    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
-    <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
-    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" positionIncrementGap="0"/>	
+    <!-- boolean 类型，用于存储布尔值 -->
+    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true">
+      <!-- sortMissingLast="true" 意味着没有该字段的文档在排序时会排在最后 -->
+    </fieldType>
+
+    <!-- date 类型，用于存储日期时间 -->
+    <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0">
+      <!-- precisionStep 和 positionIncrementGap 用于优化日期范围查询 -->
+    </fieldType>
+
+    <!-- double 类型，用于存储双精度浮点数 -->
+    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" positionIncrementGap="0"/>
+
+    <!-- long 类型，用于存储长整型数值 -->
     <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
-    <fieldType name="string" class="solr.StrField" sortMissingLast="true" />
-   </types>
+
+    <!-- string 类型，用于存储字符串 -->
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true">
+      <!-- sortMissingLast="true" 同上 -->
+    </fieldType>
+  </types>
 </schema>
-
-
-
-

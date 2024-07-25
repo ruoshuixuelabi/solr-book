@@ -20,7 +20,7 @@
         <java.version>1.8</java.version>
         <java.home>E:/jdk1.8.0_40</java.home>
         <lucene.version>5.3.1</lucene.version>
-        <canal.version>1.0.23-SNAPSHOT</canal.version>
+        <canal.version>1.1.7</canal.version>
         <spring.version>4.2.8.RELEASE</spring.version>
         <redis.client.version>2.1.0</redis.client.version>
         <spymemcached.version>2.9.1</spymemcached.version>
@@ -37,7 +37,6 @@
 
         <jsonsimple.version>1.1.1</jsonsimple.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -54,7 +53,6 @@
             <artifactId>solr-langid</artifactId>
             <version>${lucene.version}</version>
         </dependency>
-
         <!-- Canal Client -->
         <dependency>
             <groupId>com.alibaba.otter</groupId>
@@ -71,32 +69,27 @@
             <artifactId>canal.common</artifactId>
             <version>${canal.version}</version>
         </dependency>
-
         <!-- Spring Data Solr -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-solr</artifactId>
             <version>2.0.4.RELEASE</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>${redis.client.version}</version>
         </dependency>
-
         <dependency>
             <groupId>net.spy</groupId>
             <artifactId>spymemcached</artifactId>
             <version>${spymemcached.version}</version>
         </dependency>
-
         <!-- Hadoop Client -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -113,7 +106,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Spark -->
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -131,27 +123,23 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Spark Solr -->
         <dependency>
             <groupId>com.lucidworks.spark</groupId>
             <artifactId>spark-solr</artifactId>
             <version>3.0.0-alpha.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-server</artifactId>
             <version>${hbase.version}</version>
         </dependency>
-
         <!-- HBase -->
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
             <version>${hbase.version}</version>
         </dependency>
-
         <!-- Storm -->
         <dependency>
             <groupId>org.apache.storm</groupId>
@@ -169,13 +157,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Storm.Solr begin -->
-        <dependency>
-            <groupId>com.lucidworks.storm</groupId>
-            <artifactId>storm.solr</artifactId>
-            <version>${storm.solr.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.lucidworks.storm</groupId>-->
+<!--            <artifactId>storm.solr</artifactId>-->
+<!--            <version>${storm.solr.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
@@ -286,48 +273,40 @@
             <version>0.1.1</version>
         </dependency>
         <!-- Storm.Solr end -->
-
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
             <version>1.7.4</version>
         </dependency>
-
         <!-- 为了解决BUG特意加的 -->
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
         </dependency>
-
         <!-- GSON -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>mysql-binlog-connector-java</artifactId>
             <version>0.5.0</version>
         </dependency>
-
         <!-- MySQL Driver -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.38</version>
         </dependency>
-
         <!-- DBUtils -->
         <dependency>
             <groupId>commons-dbutils</groupId>
             <artifactId>commons-dbutils</artifactId>
             <version>1.6</version>
         </dependency>
-
-
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -360,16 +339,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>jdk.tools</groupId>
-            <artifactId>jdk.tools</artifactId>
-            <version>${java.version}</version>
-            <scope>system</scope>
-            <systemPath>${java.home}/lib/tools.jar</systemPath>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>jdk.tools</groupId>-->
+<!--            <artifactId>jdk.tools</artifactId>-->
+<!--            <version>${java.version}</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${java.home}/lib/tools.jar</systemPath>-->
+<!--        </dependency>-->
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

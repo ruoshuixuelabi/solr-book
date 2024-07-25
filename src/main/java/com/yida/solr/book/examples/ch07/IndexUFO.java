@@ -18,43 +18,71 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by Lanxiaowei
+ * 处理UFO目击报告的索引程序。
  */
 public class IndexUFO {
     public static Logger log = Logger.getLogger(IndexUFO.class);
 
+    /**
+     * Solr服务器的URL。
+     */
     private static final String UFO_CORE = "http://localhost:8080/solr/ufo";
 
+    /**
+     * 用于解析日期的格式化工具。
+     */
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyyMMdd");
+    /**
+     * 用于解析月份名称的格式化工具。
+     */
     private static final SimpleDateFormat MONTH_NAME_FMT = new SimpleDateFormat("MMMM", Locale.US);
 
+    /**
+     * 正则表达式用于匹配美国城市和州的格式。
+     */
     private static final Pattern MATCH_US_CITY_AND_STATE = Pattern.compile("^([^,]+),\\s([A-Z]{2})$");
 
+    /**
+     * 是否以详细模式运行。
+     */
     private boolean beVerbose = false;
 
+    /**
+     * 文件操作工具类实例。
+     */
     private FileUtils fileUtils;
 
+    /**
+     * 构造函数，初始化文件操作工具类。
+     */
     public IndexUFO() {
         this.fileUtils = new FileUtils();
     }
 
+    /**
+     * 程序入口点。
+     *
+     * @param args 命令行参数
+     * @throws Exception 如果发生错误
+     */
     public static void main(String[] args) throws Exception {
         String serverUrl = "http://localhost:8080/solr/ufo";
         int batchSize = 5000;
         String jsonFilePath = "E:/git-space/solr-book/example-docs/ch07/documents/ufo_awesome.json";
 
         IndexUFO index = new IndexUFO();
-        index.importData(serverUrl,batchSize,jsonFilePath);
+        index.importData(serverUrl, batchSize, jsonFilePath);
     }
 
     /**
-     * 导入索引数据
-     * @param serverUrl     Solr Server的请求URL
-     * @param batchSize      一个批次处理多少条
-     * @param jsonFilePath  JSON文件的路径
-     * @throws Exception
+     * 从JSON文件导入UFO目击报告数据到Solr索引。
+     *
+     * @param serverUrl     Solr服务器URL
+     * @param batchSize      每次批量提交的文档数
+     * @param jsonFilePath  JSON格式的目击报告文件路径
+     * @throws Exception 如果发生错误
      */
-    public void importData(String serverUrl,int batchSize,String jsonFilePath) throws Exception {
+    public void importData(String serverUrl, int batchSize, String jsonFilePath) throws Exception {
         long startMs = System.currentTimeMillis();
 
         SolrClient solrClient = new ConcurrentUpdateSolrServer(serverUrl, batchSize, 1);
@@ -68,7 +96,7 @@ public class IndexUFO {
         BufferedReader reader = new BufferedReader(this.fileUtils.readFileByPath(jsonFilePath));
         this.fileUtils.rememberCloseable(reader);
 
-        //读取JSON文件的每一行
+        // 逐行处理JSON文件
         while ((line = reader.readLine()) != null) {
             doc = parseNextDoc(line, ++lineNum);
             if (doc != null) {
@@ -84,25 +112,24 @@ public class IndexUFO {
             }
         }
 
-        // 添加一条模拟数据，用于多值域高亮
+        // 添加一个虚构的目击报告，用于测试多值字段的高亮显示
         solrClient.add(createFictitiousSightingWithMultiValuedField());
 
-        // 硬提交
-        solrClient.commit(true,true);
-
-        //关闭资源
+        // 提交并关闭SolrClient
+        solrClient.commit(true, true);
         solrClient.shutdown();
 
-        //打印消耗时间
-        float tookSecs = Math.round(((System.currentTimeMillis() - startMs)/1000f)*100f)/100f;
+        // 输出导入结果
+        float tookSecs = Math.round(((System.currentTimeMillis() - startMs) / 1000f) * 100f) / 100f;
         log.info(String.format("Sent %d sightings (skipped %d) took %f seconds", numSent, numSkipped, tookSecs));
     }
 
     /**
-     * 将JSON文件中的每一行JSON数据转换成Solr中的SolrInputDocument对象
-     * @param line
-     * @param lineNum
-     * @return
+     * 解析JSON字符串并转换为SolrInputDocument。
+     *
+     * @param line         JSON字符串
+     * @param lineNum      当前行号
+     * @return SolrInputDocument对象或null（如果解析失败或数据不完整）
      */
     protected SolrInputDocument parseNextDoc(String line, int lineNum) {
         Map jsonObj = null;
@@ -110,65 +137,61 @@ public class IndexUFO {
             jsonObj = (Map) ObjectBuilder.fromJSON(line);
         } catch (Exception jsonErr) {
             if (beVerbose) {
-                log.warn("Skipped invalid sighting at line "+lineNum+
-                        "; Failed to parse ["+line+"] into JSON due to: "+jsonErr);
+                log.warn("Skipped invalid sighting at line " + lineNum +
+                        "; Failed to parse [" + line + "] into JSON due to: " + jsonErr);
             }
             return null;
         }
 
+        // 提取并验证必要字段
         String sighted_at = readField(jsonObj, "sighted_at");
         String location = readField(jsonObj, "location");
         String description = readField(jsonObj, "description");
-
-        // 数据不合法的,直接忽略不处理
         if (sighted_at == null || location == null || description == null) {
             if (beVerbose) {
-                log.warn("Skipped incomplete sighting at line "+lineNum+"; "+line);
+                log.warn("Skipped incomplete sighting at line " + lineNum + "; " + line);
             }
             return null;
         }
 
-        // 处理日期
-        Date sighted_at_dt = null;
+        // 解析日期字段
+        Date sighted_at_dt;
         try {
             sighted_at_dt = DATE_FORMATTER.parse(sighted_at);
-        } catch (java.text.ParseException pe) {
+        } catch (ParseException pe) {
             if (beVerbose) {
-                log.warn("Skipped sighting at line "+lineNum+
-                        " due to invalid sighted_at date ("+sighted_at+") caused by: "+pe);
+                log.warn("Skipped sighting at line " + lineNum +
+                        " due to invalid sighted_at date (" + sighted_at + ") caused by: " + pe);
             }
             return null;
         }
 
-        // 通过正则表达式提取出state和city
+        // 解析地点字段，提取城市和州
         Matcher matcher = MATCH_US_CITY_AND_STATE.matcher(location);
         if (!matcher.matches()) {
             if (beVerbose) {
-                log.warn("Skipped sighting at line "+lineNum+
-                        " because location ["+location+"] does not look like a US city and state.");
+                log.warn("Skipped sighting at line " + lineNum +
+                        " because location [" + location + "] does not look like a US city and state.");
             }
             return null;
         }
-
-        // 获取city和state数据
         String city = matcher.group(1);
         String state = matcher.group(2);
 
-        // 清理description描述信息
+        // 清理和处理描述字段
         description = description.replace("&quot;", "\"").replace("&amp;", "&").replace("&apos;", "'");
-        description = description.replaceAll("\\s+", " "); // collapse all whitespace down to 1 space
-        description = description.replaceAll("([a-z])([\\.\\?!,;])([A-Z])", "$1$2 $3"); // fix missing space at end of sentence
-        description = description.replaceAll("([a-z])([A-Z])", "$1 $2"); // fix missing space between end of word and new word
+        description = description.replaceAll("\\s+", " "); // 把多个空格压缩为一个
+        description = description.replaceAll("([a-z])([\\.\\?!,;])([A-Z])", "$1$2 $3"); // 在句子末尾和大写字母间添加空格
+        description = description.replaceAll("([a-z])([A-Z])", "$1 $2"); // 在单词间添加空格
 
+        // 处理其他字段，并生成文档ID
         String reported_at = readField(jsonObj, "reported_at");
         String shape = readField(jsonObj, "shape");
         String duration = readField(jsonObj, "duration");
-
-        // 手动生成主键ID
         String docId = String.format("%s/%s/%s/%s/%s/%s",
                 sighted_at,
                 (reported_at != null ? reported_at : "?"),
-                city.replaceAll("\\s+",""),
+                city.replaceAll("\\s+", ""),
                 state,
                 (shape != null ? shape : "?"),
                 StringUtils.getMD5Hash(description)).toLowerCase();
@@ -203,13 +226,14 @@ public class IndexUFO {
     }
 
     /**
-     * 根据Key获取Map中的Value
-     * @param jsonObj
-     * @param key
-     * @return
+     * 从JSON对象中读取指定字段的值。
+     *
+     * @param jsonObj JSON对象
+     * @param key     字段名
+     * @return 字段值或null（如果字段不存在或空）
      */
     protected String readField(Map jsonObj, String key) {
-        String val = (String)jsonObj.get(key);
+        String val = (String) jsonObj.get(key);
         if (val != null) {
             val = val.trim();
             if (val.length() == 0) {
@@ -220,9 +244,10 @@ public class IndexUFO {
     }
 
     /**
-     * 添加一条多值域的测试数据
-     * @return
-     * @throws ParseException
+     * 创建一个具有多值字段的虚构UFO目击报告文档。
+     *
+     * @return 包含多值字段的SolrInputDocument
+     * @throws ParseException 如果日期解析失败
      */
     protected SolrInputDocument createFictitiousSightingWithMultiValuedField() throws ParseException {
         SolrInputDocument doc = new SolrInputDocument();

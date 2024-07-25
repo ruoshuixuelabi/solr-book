@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 定义Spring配置文件的版本和编码 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:solr="http://www.springframework.org/schema/data/solr"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr.xsd">
+    <!-- 配置属性文件位置，用于读取Solr服务器配置 -->
     <context:property-placeholder location="classpath:application-solr.properties" />
+    <!-- 配置Solr仓库的扫描，启用 multicore 支持 -->
     <!-- 启用Solr repositories包扫描 -->
     <solr:repositories base-package="com.yida.solr.book.examples.ch13.springdatasolr.*"
           repository-impl-postfix="Impl" multicore-support="true">
     </solr:repositories>
+    <!-- 扫描指定包下的所有组件，包括Solr相关的Repository、Service等 -->
     <context:component-scan base-package="com.yida.solr.book.examples.ch13.springdatasolr.*" />
+    <!-- 配置Solr客户端，指定Solr服务器的URL -->
     <solr:solr-client id="solrClient" url="${solr.server.url}" />
+    <!-- 配置SolrTemplate，用于Solr数据操作 -->
     <bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
+        <!-- 传入Solr客户端作为构造参数 -->
         <constructor-arg index="0" ref="solrClient"/>
     </bean>
 </beans>
